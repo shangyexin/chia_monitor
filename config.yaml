@@ -20,4 +20,3 @@ monitor:
   blockChainInterval: 1
   harvesterInterval: 5
   walletInterval: 60
-  restartInterval: 60

@@ -1,9 +1,11 @@
 package chia
 
 import (
-	"chia_monitor/src/utils"
 	"encoding/json"
+
 	log "github.com/sirupsen/logrus"
+
+	"chia_monitor/src/utils"
 )
 
 type BlockChain struct {
