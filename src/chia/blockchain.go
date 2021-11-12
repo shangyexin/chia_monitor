@@ -50,7 +50,7 @@ type BlockchainStateRpcResult struct {
 			Weight                     int         `json:"weight"`
 		} `json:"peak"`
 		Space        interface{} `json:"space"`
-		SubSlotIters int   `json:"sub_slot_iters"`
+		SubSlotIters int         `json:"sub_slot_iters"`
 		Sync         struct {
 			SyncMode           bool `json:"sync_mode"`
 			SyncProgressHeight int  `json:"sync_progress_height"`

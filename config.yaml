@@ -14,3 +14,10 @@ fullNodeCertPath:
 walletCertPath:
   certPath: ssl/wallet/private_wallet.crt
   keyPath: ssl/wallet/private_wallet.key
+
+# 监控配置，时间间隔单位：分钟
+monitor:
+  blockChainInterval: 1
+  harvesterInterval: 5
+  walletInterval: 60
+  restartInterval: 60

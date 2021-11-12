@@ -32,12 +32,20 @@ type WalletCertPath struct {
 	KeyPath  string `yaml:"keyPath"`
 }
 
+// Monitor 监控配置
+type Monitor struct {
+	BockChainInterval int `yaml:"blockChainInterval"`
+	HarvesterInterval int `yaml:"harvesterInterval"`
+	WalletInterval    int `yaml:"walletInterval"`
+}
+
 // Config 配置文件结构体
 type Config struct {
 	Listen            string `yaml:"listen"` //监听本地的端口
 	*LogConfig        `yaml:"logConfig"`
 	*FullNodeCertPath `yaml:"fullNodeCertPath"`
 	*WalletCertPath   `yaml:"walletCertPath"`
+	*Monitor          `yaml:"monitor"`
 }
 
 //GetConfig 获取配置
