@@ -1,0 +1,16 @@
+# 日志配置
+logConfig:
+  logDir: ./log
+  appName: chia_monitor
+  logSaveDay: 30
+  isProduction: false
+
+# 全节点证书路径
+fullNodeCertPath:
+  certPath: ssl/full_node/private_full_node.crt
+  keyPath: ssl/full_node/private_full_node.key
+
+# 钱包证书路径
+walletCertPath:
+  certPath: ssl/wallet/private_wallet.crt
+  keyPath: ssl/wallet/private_wallet.key
