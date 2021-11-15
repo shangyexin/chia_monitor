@@ -74,7 +74,7 @@ func (b BlockChain) GetBlockchainState() (blockchainStateRpcResult BlockchainSta
 	if err != nil {
 		return
 	}
-	log.Info(string(resp))
+	log.Debug(string(resp))
 
 	err = json.Unmarshal(resp, &blockchainStateRpcResult)
 

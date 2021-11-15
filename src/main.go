@@ -323,6 +323,8 @@ func monitorFarmer(farmer chia.Farmer) {
 						}
 					}
 				}
+			} else {
+				log.Info("All harvesters are online!")
 			}
 		} else {
 			log.Error("Get blockchain state rpc result failed!")

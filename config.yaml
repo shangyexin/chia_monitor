@@ -2,8 +2,8 @@
 logConfig:
   logDir: ./log
   appName: chia_monitor
-  logSaveDay: 30
-  isProduction: false
+  logSaveDay: 7
+  isProduction: true
 
 # 全节点证书路径
 fullNodeCertPath:

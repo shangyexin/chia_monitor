@@ -43,7 +43,7 @@ func (w Wallet) GetWalletBalance() (walletRpcResult WalletRpcResult, err error) 
 		log.Error(err)
 		return
 	}
-	log.Info(string(resp))
+	log.Debug(string(resp))
 
 	err = json.Unmarshal(resp, &walletRpcResult)
 
