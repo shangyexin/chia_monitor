@@ -1,20 +1,20 @@
 package main
 
 import (
-	"chia_monitor/src/utils"
 	"flag"
 	"fmt"
-	"github.com/robfig/cron"
 	"io/ioutil"
 	"net"
 	"os/exec"
 	"time"
 
+	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
 
 	"chia_monitor/src/chia"
 	"chia_monitor/src/config"
 	"chia_monitor/src/logger"
+	"chia_monitor/src/utils"
 	"chia_monitor/src/wechat"
 )
 
@@ -185,17 +185,37 @@ func monitorBlockState(blockChain chia.BlockChain) {
 
 //监控钱包状态
 func monitorWallet(wallet chia.Wallet) {
+	var event string
+	var detail string
+	var remark string
 	//获取配置文件
 	cfg := config.GetConfig()
+	machineName := cfg.Monitor.MachineName
 
-	//获取钱包余额
-	wallet.GetWalletBalance()
-
+	//创建定时任务
 	c := cron.New()
 	err := c.AddFunc(cfg.Monitor.WalletCron, func() {
 		//获取钱包余额
-		wallet.GetWalletBalance()
+		walletRpcResult, err := wallet.GetWalletBalance()
+		if err != nil {
+			log.Error("Get wallet balance err: ", err)
+			//发送获取rpc失败微信通知
+			event = "RPC获取钱包状态失败"
+			detail = "RPC返回失败结果"
+			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+		} else {
+			//获取成功
+			if walletRpcResult.Success {
+				log.Info("Get waller state rpc result success!")
+				//发送获取钱包余额微信通知
+				event = "钱包余额查询"
+				detail = fmt.Sprintf("钱包余额: %.12f", float64(walletRpcResult.WalletBalance.ConfirmedWalletBalance)/float64(1000000000000))
+				remark = "获取钱包余额成功"
+				wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+			}
+		}
 	})
+
 	if err != nil {
 		log.Error("Start wallet cron task err: ", err)
 		return
