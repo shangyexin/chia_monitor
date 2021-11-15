@@ -21,3 +21,4 @@ monitor:
   blockChainInterval: 10
   farmerInterval: 5
   walletCron: "0 57 11 * * *"
+  harvesterList: [ "127.0.0.1","221.229.116.134","221.229.116.142","221.229.116.130","lj.yasin.store" ]

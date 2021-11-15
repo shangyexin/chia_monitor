@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/robfig/cron"
+	"net"
 	"os/exec"
 	"time"
 
@@ -165,7 +166,7 @@ func monitorBlockState(blockChain chia.BlockChain) {
 			}
 		} else {
 			//获取失败
-			log.Debug("Get blockchain state rpc result failed!")
+			log.Error("Get blockchain state rpc result failed!")
 			//发送获取rpc失败微信通知
 			event = "RPC获取区块链状态失败"
 			detail = "RPC返回失败结果"
@@ -204,8 +205,82 @@ func monitorWallet(wallet chia.Wallet) {
 
 //监控农民状态
 func monitorFarmer(farmer chia.Farmer) {
-	//获取收割机状态
-	farmer.GetHarvesters()
+	var event string
+	var detail string
+	var remark string
+	var isFarming bool
+	var harvesterOfflineCount int
+	var host string
+
+	//获取配置文件
+	cfg := config.GetConfig()
+	machineName := cfg.Monitor.MachineName
+
+	for {
+		//获取收割机状态
+		harvestersRpcResult, err := farmer.GetHarvesters()
+		if err != nil {
+			log.Error("Get blockchain state failed: ", err)
+			//发送错误通知
+			event = "RPC获取收割机列表错误"
+			detail = err.Error()
+			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+			//等待间隔时间后重新查询
+			time.Sleep(time.Duration(cfg.BockChainInterval) * time.Minute)
+			continue
+		}
+		//获取成功
+		if harvestersRpcResult.Success {
+			log.Info("Get harvest list rpc result success!")
+			harvesterOfflineCount = 0
+			event = "收割机掉线"
+			detailTmp := "设备掉线："
+			//查找配置里面的本地+固定IP三台
+			for _, harvesterMonitor := range cfg.Monitor.HarvesterList {
+				isFarming = false
+				address := net.ParseIP(harvesterMonitor)
+				if address == nil {
+					// 没有匹配上，实际为域名，需要解析ip地址
+					addr, err := net.ResolveIPAddr("ip", harvesterMonitor)
+					if err != nil {
+						log.Errorf("%s resolve failed", harvesterMonitor)
+						continue
+					}
+					host = addr.String()
+					log.Debugf("%s resolve to ip is %s", harvesterMonitor, addr)
+				} else {
+					// 匹配成功，为IP地址
+					host = address.String()
+				}
+				for _, harvester := range harvestersRpcResult.Harvesters {
+					if host == harvester.Connection.Host {
+						log.Debugf("%s is farming, ok", harvesterMonitor)
+						isFarming = true
+					}
+				}
+				if isFarming == false {
+					log.Errorf("%s is not farming", harvesterMonitor)
+					harvesterOfflineCount = harvesterOfflineCount + 1
+					detailTmp = detailTmp + "\n" + harvesterMonitor
+				}
+			}
+			//查找lj.yasin.store
+			if harvesterOfflineCount > 0 {
+				detail = fmt.Sprintf("%d台%s", harvesterOfflineCount, detailTmp)
+				//发送错误通知
+				wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+			}
+		} else {
+			log.Error("Get blockchain state rpc result failed!")
+			//发送获取rpc失败微信通知
+			event = "RPC获取收割机列表失败"
+			detail = "RPC返回失败结果"
+			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+		}
+
+		time.Sleep(time.Duration(cfg.Monitor.FarmerInterval) * time.Minute)
+	}
+
 }
 
 //重启chia
