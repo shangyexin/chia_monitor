@@ -37,7 +37,7 @@ type Monitor struct {
 	MachineName       string `yaml:"machineName"`
 	BockChainInterval int    `yaml:"blockChainInterval"`
 	HarvesterInterval int    `yaml:"harvesterInterval"`
-	WalletInterval    int    `yaml:"walletInterval"`
+	WalletCron        string `yaml:"walletCron"`
 }
 
 // Config 配置文件结构体

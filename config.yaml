@@ -18,6 +18,6 @@ walletCertPath:
 # 监控配置，时间间隔单位：分钟
 monitor:
   machineName: NAS
-  blockChainInterval: 1
-  harvesterInterval: 5
-  walletInterval: 60
+  blockChainInterval: 10
+  farmerInterval: 5
+  walletCron: "0 57 11 * * *"

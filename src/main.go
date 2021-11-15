@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/robfig/cron"
 	"os/exec"
 	"time"
 
@@ -62,15 +63,15 @@ func main() {
 	//监控钱包状态
 	go monitorWallet(wallet)
 
-	////农民对象
-	//farmer := chia.Farmer{
-	//	BaseUrl:               farmerUrl,
-	//	CertPath:              cfg.WalletCertPath.CertPath,
-	//	KeyPath:               cfg.WalletCertPath.KeyPath,
-	//	IsSearchForPrivateKey: false,
-	//}
-	////监控农民状态
-	//go monitorFarmer(farmer)
+	//农民对象
+	farmer := chia.Farmer{
+		BaseUrl:               farmerUrl,
+		CertPath:              cfg.WalletCertPath.CertPath,
+		KeyPath:               cfg.WalletCertPath.KeyPath,
+		IsSearchForPrivateKey: false,
+	}
+	//监控农民状态
+	go monitorFarmer(farmer)
 
 	select {}
 }
@@ -181,8 +182,24 @@ func monitorBlockState(blockChain chia.BlockChain) {
 
 //监控钱包状态
 func monitorWallet(wallet chia.Wallet) {
+	//获取配置文件
+	cfg := config.GetConfig()
+
 	//获取钱包余额
 	wallet.GetWalletBalance()
+
+	c := cron.New()
+	err := c.AddFunc(cfg.Monitor.WalletCron, func() {
+		//获取钱包余额
+		wallet.GetWalletBalance()
+	})
+	if err != nil {
+		log.Error("Start wallet cron task err: ", err)
+		return
+	}
+
+	c.Start()
+	select {}
 }
 
 //监控农民状态
