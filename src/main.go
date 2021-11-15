@@ -1,7 +1,6 @@
 package main
 
 import (
-	"chia_monitor/src/wechat"
 	"flag"
 	"fmt"
 	"os/exec"
@@ -12,6 +11,8 @@ import (
 	"chia_monitor/src/chia"
 	"chia_monitor/src/config"
 	"chia_monitor/src/logger"
+	"chia_monitor/src/test"
+	"chia_monitor/src/wechat"
 )
 
 const blockChainUrl = "https://127.0.0.1:8555/"
@@ -21,8 +22,23 @@ const farmerUrl = "https://127.0.0.1:8559/"
 const restartChiaCmd = "/root/restart.sh"
 const syncingCountMax = 6
 
+var (
+	nodeEventTest   bool
+	walletEventTest bool
+	farmerEventTest bool
+)
+
 func main() {
 	log.Info("Start chia monitor...")
+	//获取命令行参数
+	flag.Parse()
+
+	//测试节点事件
+	if nodeEventTest {
+		test.TestNodeEvent()
+		return
+	}
+
 	//获取配置文件
 	cfg := config.GetConfig()
 
@@ -33,6 +49,7 @@ func main() {
 		KeyPath:  cfg.FullNodeCertPath.KeyPath,
 		WalletId: 1,
 	}
+
 	//监控区块链状态
 	go monitorBlockState(blockChain)
 
@@ -64,12 +81,13 @@ func monitorBlockState(blockChain chia.BlockChain) {
 	var iSRestarted bool
 	var isNeedAutoRecover bool
 	var syncingCount int
-	var messageTitle string
-	var messageDetail string
+	var event string
+	var detail string
 	var remark string
 
 	//获取配置文件
 	cfg := config.GetConfig()
+	machineName := cfg.Monitor.MachineName
 
 	for {
 		//获取区块链状态
@@ -77,10 +95,10 @@ func monitorBlockState(blockChain chia.BlockChain) {
 		if err != nil {
 			log.Error("Get blockchain state failed: ", err)
 			//发送错误通知
-			messageTitle = "RPC获取区块链状态错误"
-			messageDetail = err.Error()
+			event = "RPC获取区块链状态错误"
+			detail = err.Error()
 			remark = "已自动重启Chia"
-			wechat.SendChiaMonitorNoticeToWechat(messageTitle, messageDetail, remark)
+			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 			//重启Chia
 			restartChia()
 			iSRestarted = true
@@ -97,18 +115,18 @@ func monitorBlockState(blockChain chia.BlockChain) {
 				//重启后恢复
 				if iSRestarted {
 					// 发送重启恢复微信通知
-					messageTitle = "区块链同步成功"
-					messageDetail = "重启Chia后恢复"
+					event = "区块链同步成功"
+					detail = "重启Chia后恢复"
 					remark = ""
-					wechat.SendChiaMonitorNoticeToWechat(messageTitle, messageDetail, remark)
+					wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 				} else if isNeedAutoRecover {
 					//未同步计数清零
 					syncingCount = 0
 					// 发送自动恢复微信通知
-					messageTitle = "区块链同步成功"
-					messageDetail = "等待间隔后自动恢复"
+					event = "区块链同步成功"
+					detail = "等待间隔后自动恢复"
 					remark = ""
-					wechat.SendChiaMonitorNoticeToWechat(messageTitle, messageDetail, remark)
+					wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 				}
 				iSRestarted = false
 				isNeedAutoRecover = false
@@ -125,19 +143,19 @@ func monitorBlockState(blockChain chia.BlockChain) {
 					//需要等待自动恢复
 					isNeedAutoRecover = true
 					//发送区块链未同步，正等待自动恢复微信通知
-					messageTitle = "区块链未同步"
-					messageDetail = fmt.Sprintf("第%d次等待自动恢复，目标区块高度：%d，当前区块高度: %d",
+					event = "区块链未同步"
+					detail = fmt.Sprintf("第%d次等待自动恢复，目标区块高度：%d，当前区块高度: %d",
 						syncingCount,
 						blockchainStateRpcResult.BlockchainState.Sync.SyncTipHeight,
 						blockchainStateRpcResult.BlockchainState.Sync.SyncProgressHeight)
 					remark = ""
-					wechat.SendChiaMonitorNoticeToWechat(messageTitle, messageDetail, remark)
+					wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 				} else {
 					//发送区块链未同步，已经重新启动微信通知
-					messageTitle = "区块链未同步"
-					messageDetail = "已经达到最大等待次数，立即重启Chia"
+					event = "区块链未同步"
+					detail = "已经达到最大等待次数，立即重启Chia"
 					remark = ""
-					wechat.SendChiaMonitorNoticeToWechat(messageTitle, messageDetail, remark)
+					wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 					//等待syncingCountMax * blockChainInterval后都没有自动恢复，重启Chia
 					restartChia()
 					iSRestarted = true
@@ -149,10 +167,10 @@ func monitorBlockState(blockChain chia.BlockChain) {
 			//获取失败
 			log.Debug("Get blockchain state rpc result failed!")
 			//发送获取rpc失败微信通知
-			messageTitle = "RPC获取区块链状态失败"
-			messageDetail = "RPC返回失败结果"
+			event = "RPC获取区块链状态失败"
+			detail = "RPC返回失败结果"
 			remark = "已自动重启Chia"
-			wechat.SendChiaMonitorNoticeToWechat(messageTitle, messageDetail, remark)
+			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 			//重启Chia
 			restartChia()
 			iSRestarted = true
@@ -188,7 +206,9 @@ func restartChia() {
 }
 
 func init() {
-	flag.Parse()
+	flag.BoolVar(&nodeEventTest, "n", false, "测试node事件")
+	flag.BoolVar(&walletEventTest, "w", false, "测试wallet事件")
+	flag.BoolVar(&farmerEventTest, "f", false, "测试farmer事件")
 	//获取配置文件
 	cfg := config.GetConfig()
 	//初始化日志模块

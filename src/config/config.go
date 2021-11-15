@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	cfgFile = flag.String("config", "./config.yaml", "配置文件路径")
+	cfgFile = flag.String("c", "./config.yaml", "配置文件路径")
 
 	cfg *Config
 )
@@ -34,9 +34,10 @@ type WalletCertPath struct {
 
 // Monitor 监控配置
 type Monitor struct {
-	BockChainInterval int `yaml:"blockChainInterval"`
-	HarvesterInterval int `yaml:"harvesterInterval"`
-	WalletInterval    int `yaml:"walletInterval"`
+	MachineName       string `yaml:"machineName"`
+	BockChainInterval int    `yaml:"blockChainInterval"`
+	HarvesterInterval int    `yaml:"harvesterInterval"`
+	WalletInterval    int    `yaml:"walletInterval"`
 }
 
 // Config 配置文件结构体

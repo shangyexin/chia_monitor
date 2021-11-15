@@ -14,18 +14,20 @@ const myWechatAccount = "oOsegjnJh_Org9KilAs4CQ7pDjjE"
 
 // ChiaMonitorMessage Chia监控消息结构体
 type ChiaMonitorMessage struct {
-	MessageTitle  string `json:"message_title"`
-	MessageDetail string `json:"message_detail"`
+	MachineName   string `json:"machine_name"`
+	Event         string `json:"event"`
+	Detail        string `json:"detail"`
 	UpdateTime    string `json:"update_time"`
 	Remark        string `json:"remark"`
 	WechatAccount string `json:"wechat_account"`
 }
 
 // SendChiaMonitorNoticeToWechat 发送Chia监控消息给微信
-func SendChiaMonitorNoticeToWechat(messageTitle, messageDetail, remark string) {
+func SendChiaMonitorNoticeToWechat(machineName, event, detail, remark string) {
 	chiaMonitorMessage := ChiaMonitorMessage{
-		MessageTitle:  messageTitle,
-		MessageDetail: messageDetail,
+		MachineName:   machineName,
+		Event:         event,
+		Detail:        detail,
 		UpdateTime:    time.Now().Format("2006-01-02 15:04:05"),
 		Remark:        remark,
 		WechatAccount: myWechatAccount,
