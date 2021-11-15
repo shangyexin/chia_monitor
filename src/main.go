@@ -11,7 +11,6 @@ import (
 	"chia_monitor/src/chia"
 	"chia_monitor/src/config"
 	"chia_monitor/src/logger"
-	"chia_monitor/src/test"
 	"chia_monitor/src/wechat"
 )
 
@@ -35,7 +34,7 @@ func main() {
 
 	//测试节点事件
 	if nodeEventTest {
-		test.TestNodeEvent()
+		chia.TestNodeEvent()
 		return
 	}
 
