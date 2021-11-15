@@ -257,6 +257,7 @@ func monitorFarmer(farmer chia.Farmer) {
 			harvesterOfflineCount = 0
 			event = "收割机掉线"
 			detailTmp := "设备掉线："
+			remark = "请及时登陆设备处理"
 			//查找配置里面的本地+固定IP三台
 			for _, harvesterMonitor := range cfg.Monitor.HarvesterList {
 				isFarming = false
