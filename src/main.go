@@ -1,9 +1,11 @@
 package main
 
 import (
+	"chia_monitor/src/utils"
 	"flag"
 	"fmt"
 	"github.com/robfig/cron"
+	"io/ioutil"
 	"net"
 	"os/exec"
 	"time"
@@ -267,8 +269,39 @@ func monitorFarmer(farmer chia.Farmer) {
 			//查找lj.yasin.store
 			if harvesterOfflineCount > 0 {
 				detail = fmt.Sprintf("%d台%s", harvesterOfflineCount, detailTmp)
-				//发送错误通知
-				wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+				//不存在标识位，直接发送通知
+				if !utils.Exists(cfg.Monitor.HarvesterOfflineFlag) {
+					//发送错误通知
+					wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+					//写入标识位文件
+					err = ioutil.WriteFile(cfg.Monitor.HarvesterOfflineFlag, []byte(detail), 0644)
+					if err != nil {
+						log.Errorf("Write file [%s] failed: %s", cfg.Monitor.HarvesterOfflineFlag, err)
+					} else {
+						log.Infof("Write file [%s] success", cfg.Monitor.HarvesterOfflineFlag)
+					}
+				} else {
+					//存在标识位，判断与当前记录的flag内容是否一致，有变化时才重新发送通知
+					file, err := ioutil.ReadFile(cfg.Monitor.HarvesterOfflineFlag)
+					if err != nil {
+						log.Errorf("Open file [%s] failed: %s", cfg.Monitor.HarvesterOfflineFlag, err)
+						continue
+					}
+					if detail == string(file) {
+						log.Debug("Same harvester offline info, do not send notice to wechat")
+					} else {
+						log.Info("Different harvester offline info, send notice to wechat")
+						//发送错误通知
+						wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+						//写入标识位文件
+						err = ioutil.WriteFile(cfg.Monitor.HarvesterOfflineFlag, []byte(detail), 0644)
+						if err != nil {
+							log.Errorf("Write file [%s] failed: %s", cfg.Monitor.HarvesterOfflineFlag, err)
+						} else {
+							log.Infof("Write file [%s] success", cfg.Monitor.HarvesterOfflineFlag)
+						}
+					}
+				}
 			}
 		} else {
 			log.Error("Get blockchain state rpc result failed!")

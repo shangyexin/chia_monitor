@@ -1,3 +1,4 @@
 /log/*
 /ssl/*
 /chia_monitor
+/.harvesterOfflineFlag

@@ -34,11 +34,12 @@ type WalletCertPath struct {
 
 // Monitor 监控配置
 type Monitor struct {
-	MachineName       string   `yaml:"machineName"`
-	BockChainInterval int      `yaml:"blockChainInterval"`
-	FarmerInterval    int      `yaml:"farmerInterval"`
-	WalletCron        string   `yaml:"walletCron"`
-	HarvesterList     []string `yaml:"harvesterList"`
+	MachineName          string   `yaml:"machineName"`
+	BockChainInterval    int      `yaml:"blockChainInterval"`
+	FarmerInterval       int      `yaml:"farmerInterval"`
+	WalletCron           string   `yaml:"walletCron"`
+	HarvesterList        []string `yaml:"harvesterList"`
+	HarvesterOfflineFlag string   `yaml:"harvesterOfflineFlag"`
 }
 
 // Config 配置文件结构体
