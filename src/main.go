@@ -18,9 +18,9 @@ import (
 	"chia_monitor/src/wechat"
 )
 
-const blockChainUrl = "https://127.0.0.1:8555/"
-const walletUrl = "https://127.0.0.1:9256/"
-const farmerUrl = "https://127.0.0.1:8559/"
+const blockChainUrl = "https://127.0.0.1:6755/"
+const walletUrl = "https://127.0.0.1:6761/"
+const farmerUrl = "https://127.0.0.1:6759/"
 
 const restartChiaCmd = "/root/restart.sh"
 const syncingCountMax = 6
@@ -32,7 +32,7 @@ var (
 )
 
 func main() {
-	log.Info("Start chia monitor...")
+	log.Info("Start flax monitor...")
 	//获取命令行参数
 	flag.Parse()
 
@@ -102,7 +102,7 @@ func monitorBlockState(blockChain chia.BlockChain) {
 			//发送错误通知
 			event = "RPC获取区块链状态错误"
 			detail = err.Error()
-			remark = "已自动重启Chia"
+			remark = "已自动重启Flax"
 			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 			//重启Chia
 			restartChia()
@@ -121,7 +121,7 @@ func monitorBlockState(blockChain chia.BlockChain) {
 				if iSRestarted {
 					// 发送重启恢复微信通知
 					event = "区块链同步成功"
-					detail = "重启Chia后恢复"
+					detail = "重启Flax后恢复"
 					remark = ""
 					wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 				} else if isNeedAutoRecover {
@@ -211,7 +211,7 @@ func monitorBlockState(blockChain chia.BlockChain) {
 				} else {
 					//发送区块链未同步，已经重新启动微信通知
 					event = "区块链未同步"
-					detail = "已经达到最大等待次数，立即重启Chia"
+					detail = "已经达到最大等待次数，立即重启Flax"
 					remark = ""
 					wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 					//等待syncingCountMax * blockChainInterval后都没有自动恢复，重启Chia
@@ -227,7 +227,7 @@ func monitorBlockState(blockChain chia.BlockChain) {
 			//发送获取rpc失败微信通知
 			event = "RPC获取区块链状态失败"
 			detail = blockchainStateRpcResult.Error
-			remark = "已自动重启Chia"
+			remark = "已自动重启Flax"
 			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 			//重启Chia
 			restartChia()
