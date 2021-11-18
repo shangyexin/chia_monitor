@@ -67,7 +67,7 @@ func (f Farmer) GetHarvesters() (harvestersRpcResult HarvestersRpcResult, err er
 		log.Error(err)
 		return
 	}
-	log.Debug(string(resp))
+	//log.Debug(string(resp))
 
 	err = json.Unmarshal(resp, &harvestersRpcResult)
 

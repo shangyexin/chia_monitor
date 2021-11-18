@@ -87,6 +87,8 @@ func monitorBlockState(blockChain chia.BlockChain) {
 	var event string
 	var detail string
 	var remark string
+	var timestamp int
+	var blockRecordRpcResult chia.BlockRecordRpcResult
 
 	//获取配置文件
 	cfg := config.GetConfig()
@@ -139,6 +141,59 @@ func monitorBlockState(blockChain chia.BlockChain) {
 				log.Infof("Blockchain sync tip height: %d, sync progress height:%d",
 					blockchainStateRpcResult.BlockchainState.Sync.SyncTipHeight,
 					blockchainStateRpcResult.BlockchainState.Sync.SyncProgressHeight)
+				if blockchainStateRpcResult.BlockchainState.Peak.Timestamp != 0 {
+					timestamp = blockchainStateRpcResult.BlockchainState.Peak.Timestamp
+				} else {
+					peakHash := blockchainStateRpcResult.BlockchainState.Peak.HeaderHash
+					log.Debugf("peakHash: %+v", peakHash)
+					blockRecordRpcResult, err = blockChain.GetBlockRecord(peakHash)
+					if err != nil {
+						log.Error("Get block record error: ", err)
+						//发送错误通知
+						event = "RPC获取区块记录错误"
+						detail = err.Error()
+						wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+						//等待间隔时间后重新查询
+						time.Sleep(time.Duration(cfg.BockChainInterval) * time.Minute)
+						continue
+					}
+					if !blockRecordRpcResult.Success {
+						log.Error("Get block record failed: ", err)
+						//发送错误通知
+						event = "RPC获取区块记录失败"
+						detail = blockRecordRpcResult.Error
+						wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+						//等待间隔时间后重新查询
+						time.Sleep(time.Duration(cfg.BockChainInterval) * time.Minute)
+						continue
+					}
+					getBlockRecordCount := 0
+					for {
+						if blockRecordRpcResult.BlockRecord.Timestamp != 0 {
+							timestamp = blockRecordRpcResult.BlockRecord.Timestamp
+							log.Info("Get block timestamp success, getBlockRecordCount: ", getBlockRecordCount)
+							break
+						}
+						blockRecordRpcResult, err = blockChain.GetBlockRecord(blockRecordRpcResult.BlockRecord.PrevHash)
+						getBlockRecordCount = getBlockRecordCount + 1
+						if err != nil {
+							log.Error("Get block record error: ", err)
+							//发送错误通知
+							event = "RPC获取区块记录错误"
+							detail = err.Error()
+							wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+							break
+						}
+						if !blockRecordRpcResult.Success {
+							log.Error("Get block record failed: ", blockRecordRpcResult.Error)
+							//发送错误通知
+							event = "RPC获取区块记录失败"
+							detail = blockRecordRpcResult.Error
+							wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+							break
+						}
+					}
+				}
 				//重试次数+1
 				if syncingCount < syncingCountMax {
 					log.Debugf("Retry count: %d", syncingCount)
@@ -147,10 +202,10 @@ func monitorBlockState(blockChain chia.BlockChain) {
 					isNeedAutoRecover = true
 					//发送区块链未同步，正等待自动恢复微信通知
 					event = "区块链未同步"
-					detail = fmt.Sprintf("第%d次等待自动恢复，目标区块高度：%d，当前区块高度: %d",
+					currentBlockTime := time.Unix(int64(timestamp), 0).Format("2006-01-02 15:04:05")
+					detail = fmt.Sprintf("第%d次等待自动恢复，当前最新区块时间：%s",
 						syncingCount,
-						blockchainStateRpcResult.BlockchainState.Sync.SyncTipHeight,
-						blockchainStateRpcResult.BlockchainState.Sync.SyncProgressHeight)
+						currentBlockTime)
 					remark = ""
 					wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 				} else {
