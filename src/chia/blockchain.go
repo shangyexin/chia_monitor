@@ -70,7 +70,8 @@ type BlockchainStateRpcResult struct {
 			Synced             bool `json:"synced"`
 		} `json:"sync"`
 	} `json:"blockchain_state"`
-	Success bool `json:"success"`
+	Error   string `json:"error"`
+	Success bool   `json:"success"`
 }
 
 type BlockRecordRpcResult struct {

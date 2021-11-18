@@ -20,7 +20,6 @@ type Wallet struct {
 }
 
 type WalletRpcResult struct {
-	Success       bool `json:"success"`
 	WalletBalance struct {
 		ConfirmedWalletBalance   int `json:"confirmed_wallet_balance"`
 		MaxSendAmount            int `json:"max_send_amount"`
@@ -31,6 +30,8 @@ type WalletRpcResult struct {
 		UnspentCoinCount         int `json:"unspent_coin_count"`
 		WalletID                 int `json:"wallet_id"`
 	} `json:"wallet_balance"`
+	Error   string `json:"error"`
+	Success bool   `json:"success"`
 }
 
 // GetWalletBalance 获取钱包余额

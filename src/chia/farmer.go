@@ -28,6 +28,7 @@ type HarvestersRpcResult struct {
 		NoKeyFilenames        []interface{} `json:"no_key_filenames"`
 		Plots                 []interface{} `json:"plots"`
 	} `json:"harvesters"`
+	Error   string `json:"error"`
 	Success bool `json:"success"`
 }
 

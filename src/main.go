@@ -223,10 +223,10 @@ func monitorBlockState(blockChain chia.BlockChain) {
 			}
 		} else {
 			//获取失败
-			log.Error("Get blockchain state rpc result failed!")
+			log.Error("Get blockchain state rpc result failed: ", blockchainStateRpcResult.Error)
 			//发送获取rpc失败微信通知
 			event = "RPC获取区块链状态失败"
-			detail = "RPC返回失败结果"
+			detail = blockchainStateRpcResult.Error
 			remark = "已自动重启Chia"
 			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 			//重启Chia
@@ -267,12 +267,19 @@ func monitorWallet(wallet chia.Wallet) {
 				detail = fmt.Sprintf("钱包余额: %.12f", float64(walletRpcResult.WalletBalance.ConfirmedWalletBalance)/float64(1000000000000))
 				remark = "获取钱包余额成功"
 				wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+			} else {
+				log.Info("Get waller state rpc result failed: ", walletRpcResult.Error)
+				//发送获取钱包余额微信通知
+				event = "钱包余额查询"
+				detail = walletRpcResult.Error
+				remark = "获取钱包余额失败"
+				wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 			}
 		}
 	})
 
 	if err != nil {
-		log.Error("Start wallet cron task err: ", err)
+		log.Fatal("Start wallet cron task err: ", err)
 		return
 	}
 
@@ -382,10 +389,10 @@ func monitorFarmer(farmer chia.Farmer) {
 				log.Info("All harvesters are online!")
 			}
 		} else {
-			log.Error("Get blockchain state rpc result failed!")
+			log.Error("Get blockchain state rpc result failed: ", harvestersRpcResult.Error)
 			//发送获取rpc失败微信通知
 			event = "RPC获取收割机列表失败"
-			detail = "RPC返回失败结果"
+			detail = harvestersRpcResult.Error
 			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 		}
 
