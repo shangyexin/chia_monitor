@@ -85,6 +85,7 @@ func MonitorFarmer(farmer Farmer) {
 	cfg := config.GetConfig()
 	machineName := cfg.Monitor.MachineName
 	event = "耕种状态监控"
+	log.Info("Start to monitor farmer...")
 
 	for {
 		//获取收割机状态

@@ -64,11 +64,14 @@ func main() {
 	//监控耕种状态
 	go chia.MonitorFarmer(farmer)
 
-	//监控矿池状态
-	go chia.MonitorPool(farmer)
+	//新协议，支持矿池
+	if cfg.Monitor.IsSupportPool {
+		//监控矿池状态
+		go chia.MonitorPool(farmer)
 
-	//监控矿池收益
-	go chia.MonitorPoolEarning(cfg.PoolName)
+		//监控矿池收益
+		go chia.MonitorPoolEarning(cfg.PoolName)
+	}
 
 	select {}
 }

@@ -41,6 +41,7 @@ type Monitor struct {
 	DailyCron            string   `yaml:"dailyCron"`
 	HarvesterList        []string `yaml:"harvesterList"`
 	HarvesterOfflineFlag string   `yaml:"harvesterOfflineFlag"`
+	IsSupportPool        bool     `yaml:"isSupportPool"`
 	LauncherId           string   `yaml:"launcherId"`
 	PoolName             string   `yaml:"poolName"`
 }

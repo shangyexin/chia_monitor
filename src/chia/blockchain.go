@@ -159,6 +159,7 @@ func MonitorBlockState(blockChain BlockChain) {
 	cfg := config.GetConfig()
 	machineName := cfg.Monitor.MachineName
 	event = "区块链状态监控"
+	log.Info("Start to monitor block state...")
 
 	for {
 		//获取区块链状态
