@@ -69,6 +69,21 @@ func Post(url string, data interface{}, contentType string) (result []byte, err 
 	return result, err
 }
 
+// Get 发送Get请求
+// url：请求地址
+func Get(url string) (result []byte, err error) {
+	// 超时时间：5秒
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Get(url)
+	if err != nil {
+		return result, err
+	}
+	defer resp.Body.Close()
+	result, _ = ioutil.ReadAll(resp.Body)
+
+	return result, err
+}
+
 // Exists 判断所给路径文件/文件夹是否存在
 func Exists(path string) bool {
 	_, err := os.Stat(path) //os.Stat获取文件信息

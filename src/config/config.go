@@ -2,8 +2,9 @@ package config
 
 import (
 	"flag"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
+
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -18,6 +19,14 @@ type LogConfig struct {
 	AppName      string `yaml:"appName"`      //应用名称
 	LogSaveDay   uint32 `yaml:"logSaveDay"`   //日志保存天数
 	IsProduction bool   `yaml:"isProduction"` //是不是生产环境，生产环境日志级别：info
+}
+
+// Coin 币种信息
+type Coin struct {
+	Name             string `yaml:"name"`             //名称
+	BlockChainRpcUrl string `yaml:"blockChainRpcUrl"` //区块链RPC接口
+	WalletRpcUrl     string `yaml:"walletRpcUrl"`     //钱包RPC接口
+	FarmerRpcUrl     string `yaml:"farmerRpcUrl"`     //农民RPC接口
 }
 
 // FullNodeCertPath 全节点证书路径
@@ -37,15 +46,19 @@ type Monitor struct {
 	MachineName          string   `yaml:"machineName"`
 	BockChainInterval    int      `yaml:"blockChainInterval"`
 	FarmerInterval       int      `yaml:"farmerInterval"`
-	WalletCron           string   `yaml:"walletCron"`
+	DailyCron            string   `yaml:"dailyCron"`
 	HarvesterList        []string `yaml:"harvesterList"`
 	HarvesterOfflineFlag string   `yaml:"harvesterOfflineFlag"`
+	IsSupportPool        bool     `yaml:"isSupportPool"`
+	LauncherId           string   `yaml:"launcherId"`
+	PoolName             string   `yaml:"poolName"`
 }
 
 // Config 配置文件结构体
 type Config struct {
 	Listen            string `yaml:"listen"` //监听本地的端口
 	*LogConfig        `yaml:"logConfig"`
+	*Coin             `yaml:"coin"`
 	*FullNodeCertPath `yaml:"fullNodeCertPath"`
 	*WalletCertPath   `yaml:"walletCertPath"`
 	*Monitor          `yaml:"monitor"`
