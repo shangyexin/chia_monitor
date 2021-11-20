@@ -5,6 +5,13 @@ logConfig:
   logSaveDay: 7
   isProduction: true
 
+# 币种信息
+coin:
+  name: chia
+  blockChainRpcUrl: "https://127.0.0.1:8555/"
+  walletRpcUrl: "https://127.0.0.1:9256/"
+  farmerRpcUrl: "https://127.0.0.1:8559/"
+
 # 全节点证书路径
 fullNodeCertPath:
   certPath: ssl/full_node/private_full_node.crt

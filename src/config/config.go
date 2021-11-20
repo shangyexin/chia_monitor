@@ -21,6 +21,14 @@ type LogConfig struct {
 	IsProduction bool   `yaml:"isProduction"` //是不是生产环境，生产环境日志级别：info
 }
 
+// Coin 币种信息
+type Coin struct {
+	Name             string `yaml:"name"`             //名称
+	BlockChainRpcUrl string `yaml:"blockChainRpcUrl"` //区块链RPC接口
+	WalletRpcUrl     string `yaml:"walletRpcUrl"`     //钱包RPC接口
+	FarmerRpcUrl     string `yaml:"farmerRpcUrl"`     //农民RPC接口
+}
+
 // FullNodeCertPath 全节点证书路径
 type FullNodeCertPath struct {
 	CertPath string `yaml:"certPath"`
@@ -50,6 +58,7 @@ type Monitor struct {
 type Config struct {
 	Listen            string `yaml:"listen"` //监听本地的端口
 	*LogConfig        `yaml:"logConfig"`
+	*Coin             `yaml:"coin"`
 	*FullNodeCertPath `yaml:"fullNodeCertPath"`
 	*WalletCertPath   `yaml:"walletCertPath"`
 	*Monitor          `yaml:"monitor"`

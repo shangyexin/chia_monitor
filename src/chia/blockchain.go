@@ -167,7 +167,7 @@ func MonitorBlockState(blockChain BlockChain) {
 		if err != nil {
 			log.Error("Get blockchain state failed: ", err)
 			detail = err.Error()
-			remark = "获取区块链状态错误，已自动重启Chia"
+			remark = fmt.Sprintf("获取区块链状态错误，已自动重启%s", cfg.Coin.Name)
 			//发送获取区块链状态错误通知
 			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 			//重启Chia
@@ -187,7 +187,7 @@ func MonitorBlockState(blockChain BlockChain) {
 				//重启后恢复
 				if iSRestarted {
 					// 发送重启恢复微信通知
-					detail = "重启Chia后恢复"
+					detail = fmt.Sprintf("重启%s后恢复", cfg.Coin.Name)
 				} else if isNeedAutoRecover {
 					//未同步计数清零
 					syncingCount = 0
@@ -227,7 +227,7 @@ func MonitorBlockState(blockChain BlockChain) {
 					remark = "区块链未同步"
 				} else {
 					//发送区块链未同步，已经重新启动微信通知
-					detail = "已经达到最大等待次数，立即重启Chia"
+					detail = fmt.Sprintf("已经达到最大等待次数，立即重启%s", cfg.Coin.Name)
 					remark = "区块链未同步"
 					//等待syncingCountMax * blockChainInterval后都没有自动恢复，重启Chia
 					restartChia()
@@ -242,7 +242,7 @@ func MonitorBlockState(blockChain BlockChain) {
 			//获取失败
 			log.Error("Get blockchain state rpc result failed: ", blockchainStateRpcResult.Error)
 			detail = blockchainStateRpcResult.Error
-			remark = "获取区块链状态失败，已自动重启Chia"
+			remark = fmt.Sprintf("获取区块链状态失败，已自动重启%s", cfg.Coin.Name)
 			//发送获取rpc失败微信通知
 			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 			//重启Chia

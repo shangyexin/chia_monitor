@@ -10,10 +10,6 @@ import (
 	"chia_monitor/src/logger"
 )
 
-const blockChainUrl = "https://127.0.0.1:8555/"
-const walletUrl = "https://127.0.0.1:9256/"
-const farmerUrl = "https://127.0.0.1:8559/"
-
 var (
 	nodeEventTest   bool
 	walletEventTest bool
@@ -21,22 +17,21 @@ var (
 )
 
 func main() {
-	log.Info("Start chia monitor...")
+	//获取配置文件
+	cfg := config.GetConfig()
+	log.Infof("Start %s monitor...", cfg.Coin.Name)
+
 	//获取命令行参数
 	flag.Parse()
-
 	//测试节点事件
 	if nodeEventTest {
 		chia.TestNodeEvent()
 		return
 	}
 
-	//获取配置文件
-	cfg := config.GetConfig()
-
 	//区块链对象
 	blockChain := chia.BlockChain{
-		BaseUrl:  blockChainUrl,
+		BaseUrl:  cfg.Coin.BlockChainRpcUrl,
 		CertPath: cfg.FullNodeCertPath.CertPath,
 		KeyPath:  cfg.FullNodeCertPath.KeyPath,
 		WalletId: 1,
@@ -46,7 +41,7 @@ func main() {
 
 	//钱包对象
 	wallet := chia.Wallet{
-		BaseUrl:  walletUrl,
+		BaseUrl:  cfg.Coin.WalletRpcUrl,
 		CertPath: cfg.WalletCertPath.CertPath,
 		KeyPath:  cfg.WalletCertPath.KeyPath,
 		WalletId: 1,
@@ -56,7 +51,7 @@ func main() {
 
 	//农民对象
 	farmer := chia.Farmer{
-		BaseUrl:               farmerUrl,
+		BaseUrl:               cfg.Coin.FarmerRpcUrl,
 		CertPath:              cfg.WalletCertPath.CertPath,
 		KeyPath:               cfg.WalletCertPath.KeyPath,
 		IsSearchForPrivateKey: false,
