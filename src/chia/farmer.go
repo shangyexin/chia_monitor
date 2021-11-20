@@ -244,7 +244,7 @@ func MonitorPool(farmer Farmer) {
 
 	//创建定时任务
 	c := cron.New()
-	err := c.AddFunc(cfg.Monitor.WalletCron, func() {
+	err := c.AddFunc(cfg.Monitor.DailyCron, func() {
 		//获取矿池状态
 		poolStateRpcResult, err := farmer.GetPoolState()
 		if err != nil {

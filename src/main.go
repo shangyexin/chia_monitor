@@ -67,6 +67,9 @@ func main() {
 	//监控矿池状态
 	go chia.MonitorPool(farmer)
 
+	//监控矿池收益
+	go chia.MonitorPoolEarning(cfg.PoolName)
+
 	select {}
 }
 

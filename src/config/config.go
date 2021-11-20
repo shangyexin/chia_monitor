@@ -37,9 +37,11 @@ type Monitor struct {
 	MachineName          string   `yaml:"machineName"`
 	BockChainInterval    int      `yaml:"blockChainInterval"`
 	FarmerInterval       int      `yaml:"farmerInterval"`
-	WalletCron           string   `yaml:"walletCron"`
+	DailyCron            string   `yaml:"dailyCron"`
 	HarvesterList        []string `yaml:"harvesterList"`
 	HarvesterOfflineFlag string   `yaml:"harvesterOfflineFlag"`
+	LauncherId           string   `yaml:"launcherId"`
+	PoolName             string   `yaml:"poolName"`
 }
 
 // Config 配置文件结构体

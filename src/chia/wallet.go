@@ -66,7 +66,7 @@ func MonitorWallet(wallet Wallet) {
 
 	//创建定时任务
 	c := cron.New()
-	err := c.AddFunc(cfg.Monitor.WalletCron, func() {
+	err := c.AddFunc(cfg.Monitor.DailyCron, func() {
 		//获取钱包余额
 		walletRpcResult, err := wallet.GetWalletBalance()
 		if err != nil {
