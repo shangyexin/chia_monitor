@@ -3,11 +3,11 @@ package chia
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/robfig/cron"
 	"io/ioutil"
 	"net"
 	"time"
 
+	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
 
 	"chia_monitor/src/config"
@@ -72,7 +72,7 @@ type PoolStateRpcResult struct {
 	Success bool   `json:"success"`
 }
 
-//MonitorFarmer 监控农民状态
+//MonitorFarmer 监控耕种状态
 func MonitorFarmer(farmer Farmer) {
 	var event string
 	var detail string
@@ -84,6 +84,7 @@ func MonitorFarmer(farmer Farmer) {
 	//获取配置文件
 	cfg := config.GetConfig()
 	machineName := cfg.Monitor.MachineName
+	event = "耕种状态监控"
 
 	for {
 		//获取收割机状态
@@ -91,8 +92,8 @@ func MonitorFarmer(farmer Farmer) {
 		if err != nil {
 			log.Error("Get blockchain state failed: ", err)
 			//发送错误通知
-			event = "RPC获取收割机列表错误"
 			detail = err.Error()
+			remark = "获取收割机列表错误"
 			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 			//等待间隔时间后重新查询
 			time.Sleep(time.Duration(cfg.BockChainInterval) * time.Minute)
@@ -102,9 +103,8 @@ func MonitorFarmer(farmer Farmer) {
 		if harvestersRpcResult.Success {
 			log.Info("Get harvest list rpc result success!")
 			harvesterOfflineCount = 0
-			event = "收割机掉线"
 			detailTmp := "设备掉线："
-			remark = "请及时登陆设备处理"
+			remark = "收割机掉线，请及时登陆设备处理"
 			//查找配置里面的本地+固定IP三台
 			for _, harvesterMonitor := range cfg.Monitor.HarvesterList {
 				isFarming = false
@@ -176,8 +176,8 @@ func MonitorFarmer(farmer Farmer) {
 		} else {
 			log.Error("Get blockchain state rpc result failed: ", harvestersRpcResult.Error)
 			//发送获取rpc失败微信通知
-			event = "RPC获取收割机列表失败"
 			detail = harvestersRpcResult.Error
+			remark = "获取收割机列表失败"
 			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 		}
 
@@ -238,9 +238,11 @@ func MonitorPool(farmer Farmer) {
 	var event string
 	var detail string
 	var remark string
+
 	//获取配置文件
 	cfg := config.GetConfig()
 	machineName := cfg.Monitor.MachineName
+	event = "监控矿池状态"
 
 	//创建定时任务
 	c := cron.New()
@@ -250,15 +252,13 @@ func MonitorPool(farmer Farmer) {
 		if err != nil {
 			log.Error("Get pool state err: ", err)
 			//发送获取rpc失败微信通知
-			event = "矿池状态获取错误"
 			detail = err.Error()
-			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+			remark = "矿池状态获取错误"
 		} else {
 			//获取成功
 			if poolStateRpcResult.Success {
 				log.Info("Get pool state rpc result success!")
 				//发送矿池状态微信通知
-				event = "矿池状态监控"
 				successPercent := float64(len(poolStateRpcResult.PoolState[0].PointsAcknowledged24H)) / float64(len(poolStateRpcResult.PoolState[0].PointsFound24H)) * 100
 				detail = fmt.Sprintf("%s，当前难度：%d，当前积分：%d，24h积分获取成功率：%.2f%%",
 					poolStateRpcResult.PoolState[0].PoolConfig.PoolURL,
@@ -267,16 +267,14 @@ func MonitorPool(farmer Farmer) {
 					successPercent,
 				)
 				remark = "获取矿池状态成功"
-				wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 			} else {
 				log.Info("Get pool state rpc result failed: ", poolStateRpcResult.Error)
 				//发送获取钱包余额微信通知
-				event = "矿池状态监控"
 				detail = poolStateRpcResult.Error
 				remark = "获取矿池状态失败"
-				wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 			}
 		}
+		wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 	})
 
 	if err != nil {

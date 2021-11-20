@@ -41,7 +41,7 @@ func getXCHPoolEarning() (xchPoolEarning XCHPoolEarning, err error) {
 	//如果参数中有中文参数,这个方法会进行URLEncode
 	Url.RawQuery = params.Encode()
 	urlPath := Url.String()
-	log.Debug("XCHPool earning url: ", urlPath)
+	log.Info("XCHPool earning url: ", urlPath)
 	resp, err := utils.Get(urlPath)
 	if err != nil {
 		return
@@ -69,7 +69,7 @@ func MonitorPoolEarning(poolName string) {
 		switch poolName {
 		case "XCHPool":
 			xchPoolEarning, err := getXCHPoolEarning()
-			log.Debugf("xchPoolEarning: %+v", xchPoolEarning)
+			log.Infof("xchPoolEarning: %+v", xchPoolEarning)
 			if err != nil {
 				detail = fmt.Sprintf("获取XCHPool收益错误：%s", err.Error())
 				remark = "获取矿池收益错误"

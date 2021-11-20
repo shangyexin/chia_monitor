@@ -60,9 +60,11 @@ func MonitorWallet(wallet Wallet) {
 	var event string
 	var detail string
 	var remark string
+
 	//获取配置文件
 	cfg := config.GetConfig()
 	machineName := cfg.Monitor.MachineName
+	event = "钱包状态监控"
 
 	//创建定时任务
 	c := cron.New()
@@ -72,27 +74,23 @@ func MonitorWallet(wallet Wallet) {
 		if err != nil {
 			log.Error("Get wallet balance err: ", err)
 			//发送获取rpc失败微信通知
-			event = "RPC获取钱包状态失败"
 			detail = err.Error()
-			wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+			remark = "获取钱包余额错误"
 		} else {
 			//获取成功
 			if walletRpcResult.Success {
 				log.Info("Get waller state rpc result success!")
 				//发送获取钱包余额微信通知
-				event = "钱包余额查询"
 				detail = fmt.Sprintf("钱包余额: %.12f", float64(walletRpcResult.WalletBalance.ConfirmedWalletBalance)/float64(1000000000000))
 				remark = "获取钱包余额成功"
-				wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 			} else {
 				log.Info("Get waller state rpc result failed: ", walletRpcResult.Error)
 				//发送获取钱包余额微信通知
-				event = "钱包余额查询"
 				detail = walletRpcResult.Error
 				remark = "获取钱包余额失败"
-				wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 			}
 		}
+		wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
 	})
 
 	if err != nil {
