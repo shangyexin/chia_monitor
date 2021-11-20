@@ -1,7 +1,7 @@
 # 日志配置
 logConfig:
   logDir: ./log
-  appName: chia_monitor
+  appName: flax_monitor
   logSaveDay: 7
   isProduction: true
 
@@ -27,9 +27,7 @@ monitor:
   machineName: NAS
   blockChainInterval: 10
   farmerInterval: 5
-  dailyCron: "0 57 11 * * *"
-  harvesterList: [ "127.0.0.1","221.229.116.134","221.229.116.142","221.229.116.130","lj.yasin.store" ]
+  dailyCron: "0 58 11 * * *"
+  harvesterList: [ "home.yasin.store","221.229.116.134","221.229.116.142","221.229.116.130","lj.yasin.store" ]
   harvesterOfflineFlag: "./.harvesterOfflineFlag"
-  isSupportPool: true
-  launcherId: 91a075b44349cd091f82d3a120d9ac06dedcfc2be4ce3506504630d054d85bf0
-  poolName: XCHPool
+  isSupportPool: false
