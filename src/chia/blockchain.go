@@ -226,11 +226,12 @@ func MonitorBlockState(blockChain BlockChain) {
 						currentBlockTime)
 					remark = "区块链未同步"
 				} else {
+					log.Infof("已经达到最大等待次数，立即重启%s", cfg.Coin.Name)
 					//发送区块链未同步，已经重新启动微信通知
 					detail = fmt.Sprintf("已经达到最大等待次数，立即重启%s", cfg.Coin.Name)
 					remark = "区块链未同步"
 					//等待syncingCountMax * blockChainInterval后都没有自动恢复，重启Chia
-					restartChia()
+					go restartChia()
 					iSRestarted = true
 					//重启后继续等待自动恢复，防止暂时未同步成功
 					syncingCount = 0
