@@ -89,6 +89,11 @@ func MonitorFarmer(farmer Farmer) {
 	event = "耕种状态监控"
 	log.Info("Start to monitor farmer...")
 
+	//删除之前的收割机掉线标识文件
+	if utils.Exists(cfg.Monitor.HarvesterOfflineFlag) {
+		_ = os.Remove(cfg.Monitor.HarvesterOfflineFlag)
+	}
+
 	for {
 		//获取收割机状态
 		harvestersRpcResult, err := farmer.GetHarvesters()
