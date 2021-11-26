@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net"
+	"os"
 	"time"
 
 	"github.com/robfig/cron"
@@ -80,6 +81,7 @@ func MonitorFarmer(farmer Farmer) {
 	var isFarming bool
 	var harvesterOfflineCount int
 	var host string
+	var isWaitHarvesterRecover bool
 
 	//获取配置文件
 	cfg := config.GetConfig()
@@ -137,6 +139,7 @@ func MonitorFarmer(farmer Farmer) {
 			}
 			//查找lj.yasin.store
 			if harvesterOfflineCount > 0 {
+				isWaitHarvesterRecover = true
 				detail = fmt.Sprintf("%d台%s", harvesterOfflineCount, detailTmp)
 				//不存在标识位，直接发送通知
 				if !utils.Exists(cfg.Monitor.HarvesterOfflineFlag) {
@@ -173,6 +176,22 @@ func MonitorFarmer(farmer Farmer) {
 				}
 			} else {
 				log.Info("All harvesters are online!")
+				//是否从异常中恢复，是的话发送微信通知
+				if isWaitHarvesterRecover {
+					detail = "收割机已经全部上线"
+					remark = "收割机已恢复"
+					//发送微信通知
+					wechat.SendChiaMonitorNoticeToWechat(machineName, event, detail, remark)
+					//重置收割机掉线状态
+					isWaitHarvesterRecover = false
+					//删除收割机掉线标识位文件
+					err = os.Remove(cfg.Monitor.HarvesterOfflineFlag)
+					if err != nil {
+						log.Error("Remove harvester offline flag err: ", err)
+					} else {
+						log.Debug("Remove harvester offline flag success!")
+					}
+				}
 			}
 		} else {
 			log.Error("Get blockchain state rpc result failed: ", harvestersRpcResult.Error)
