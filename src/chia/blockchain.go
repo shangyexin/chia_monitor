@@ -174,7 +174,7 @@ func MonitorBlockState(blockChain BlockChain) {
 			restartChia()
 			iSRestarted = true
 			//等待间隔时间后重新查询
-			time.Sleep(time.Duration(cfg.BockChainInterval) * time.Minute)
+			time.Sleep(time.Duration(cfg.Monitor.BockChainInterval) * time.Minute)
 			continue
 		}
 		//获取成功
