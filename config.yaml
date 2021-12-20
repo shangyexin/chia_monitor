@@ -25,7 +25,7 @@ walletCertPath:
 # 监控配置，时间间隔单位：分钟
 monitor:
   machineName: NAS
-  blockChainInterval: 10
+  blockChainInterval: 20
   farmerInterval: 5
   dailyCron: "0 57 11 * * *"
   harvesterList: [ "127.0.0.1","221.229.116.134","221.229.116.142","221.229.116.130","lj.yasin.store" ]
