@@ -28,8 +28,8 @@ monitor:
   blockChainInterval: 20
   farmerInterval: 5
   dailyCron: "0 57 11 * * *"
-  harvesterList: [ "127.0.0.1","221.229.116.134","221.229.116.142","221.229.116.130","lj.yasin.store" ]
+  harvesterList: [ "127.0.0.1","221.229.116.134","112.4.209.74","lj.yasin.store" ]
   harvesterOfflineFlag: "./.harvesterOfflineFlag"
   isSupportPool: true
   launcherId: 91a075b44349cd091f82d3a120d9ac06dedcfc2be4ce3506504630d054d85bf0
-  poolName: XCHPool
+  poolName: Dpool
